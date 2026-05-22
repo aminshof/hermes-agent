@@ -579,6 +579,7 @@ class SessionManager:
 
         config = load_config()
         model_cfg = config.get("model")
+        agent_cfg = config.get("agent") or {}
         default_model = ""
         config_provider = None
         if isinstance(model_cfg, dict):
@@ -586,6 +587,11 @@ class SessionManager:
             config_provider = model_cfg.get("provider")
         elif isinstance(model_cfg, str) and model_cfg.strip():
             default_model = model_cfg.strip()
+
+        try:
+            max_iterations = int(agent_cfg.get("max_turns") or config.get("max_turns") or 90)
+        except (TypeError, ValueError):
+            max_iterations = 90
 
         configured_mcp_servers = [
             name
@@ -603,6 +609,7 @@ class SessionManager:
             "session_id": session_id,
             "session_db": self._get_db(),
             "model": model or default_model,
+            "max_iterations": max_iterations,
         }
 
         try:
